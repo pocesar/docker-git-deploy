@@ -1,16 +1,27 @@
-FROM       ubuntu:14.04
-MAINTAINER Aleksandar Diklic "https://github.com/rastasheep"
+FROM       ubuntu:trusty
+MAINTAINER Paulo Cesar "https://github.com/pocesar"
 
 RUN apt-get update
 
-RUN apt-get install -y openssh-server
+RUN apt-get install -y openssh-server git
 RUN mkdir /var/run/sshd
 
-RUN echo 'root:root' |chpasswd
+ENV PUBLIC_KEY ""
+ENV IN ""
+ENV OUT ""
+ENV USER git
 
-RUN sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config
-RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
+RUN sed -ri 's/#?PermitRootLogin\s+.*/PermitRootLogin no/' /etc/ssh/sshd_config
+RUN sed -ri 's/#?PasswordAuthentication\s+.*/PasswordAuthentication no/' /etc/ssh/sshd_config
+RUN sed -ri 's/#?PermitEmptyPasswords\s+.*/PermitEmptyPasswords no/' /etc/ssh/sshd_config
+RUN sed -ri 's/#?PubkeyAuthentication\s+.*/PubkeyAuthentication yes/' /etc/ssh/sshd_config
+RUN sed -ri 's/#?UseLogin\s+.*/UseLogin no/' /etc/ssh/sshd_config
+RUN sed -ri 's/#?LogLevel\s+.*/LogLevel INFO/' /etc/ssh/sshd_config
+RUN sed -ri 's/#?UsePAM\s+.*/UsePAM yes/g' /etc/ssh/sshd_config
+
+ADD run.sh /run.sh
+RUN chmod +x /run.sh
 
 EXPOSE 22
 
-CMD    ["/usr/sbin/sshd", "-D"]
+CMD ["/run.sh"]
