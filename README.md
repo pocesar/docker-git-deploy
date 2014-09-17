@@ -1,11 +1,11 @@
 Docker Git Deploy
 ================
 
-Dockerized Git deploy through SSH service, built on top of [official Ubuntu](https://registry.hub.docker.com/_/ubuntu/) trusty image.
+Dockerized Git deploy through SSH service, built on top of [official Ubuntu](https://registry.hub.docker.com/_/ubuntu/) trusty image. It uses git 'post-receive' hook and provides nice colored logs for each pushed commit.
 
-Accepts an `IN`, `OUT`, `USER` and `PUBLIC_KEY` settings, if the git history doesn't matter to you, pass only the `OUT` and `PUBLIC_KEY` settings
+Accepts an `IN`, `OUT`, `USER` and `PUBLIC_KEY` settings through environment variables, if the git history doesn't matter to you, pass only the `OUT` and `PUBLIC_KEY` settings, which aren't optional
 
-Doesn't allow user logins, only public keys.
+This Dockerized image doesn't allow plain text logins, can only connect to it through the use of a public key.
 
 ## Defaults
 
@@ -25,6 +25,7 @@ $ docker run -d -p 1234:22 \
     -v ~/.ssh/id_dsa.pub:/id_dsa.pub \
     -e OUT="/repo" \
     -v  /var/www:/repo \
+    -e IN="/in"
     pocesar/docker-git-deploy
 c48f7b86594953012ca4731b1ec08b053ce5826d3f501ed579c660bec42d2c88
 ```
