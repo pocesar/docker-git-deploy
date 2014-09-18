@@ -1,16 +1,19 @@
 FROM       ubuntu:trusty
 MAINTAINER Paulo Cesar "https://github.com/pocesar"
 
+ENV DEBIAN_FRONTEND noninteractive
+
 RUN apt-get update
 
 RUN apt-get install -y openssh-server git
-RUN mkdir /var/run/sshd
+RUN mkdir -m 0755 /var/run/sshd
 
 ENV PUBLIC_KEY ""
 ENV IN ""
-ENV OUT ""
 ENV USER git
+ENV USERSCRIPT ""
 
+RUN sed -ri 's/#?RSAAuthentication\s+.*/RSAAuthentication yes/' /etc/ssh/sshd_config
 RUN sed -ri 's/#?PermitRootLogin\s+.*/PermitRootLogin no/' /etc/ssh/sshd_config
 RUN sed -ri 's/#?PasswordAuthentication\s+.*/PasswordAuthentication no/' /etc/ssh/sshd_config
 RUN sed -ri 's/#?PermitEmptyPasswords\s+.*/PermitEmptyPasswords no/' /etc/ssh/sshd_config
