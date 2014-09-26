@@ -3,7 +3,7 @@ MAINTAINER Paulo Cesar "https://github.com/pocesar"
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get update
+RUN apt-get update && apt-get dist-upgrade -q -y > /dev/null
 
 RUN apt-get install -y openssh-server git
 RUN mkdir -m 0755 /var/run/sshd
