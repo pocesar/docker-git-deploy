@@ -50,48 +50,44 @@ wideenv OUT "$OUT"
 wideenv IN "$IN"
 wideenv USERSCRIPT "$USERSCRIPT"
 
-if [[ ! -e "$PUBLIC_KEY" ]]; then
-    log "Missing public key"
-    exit 1
+export HOME=/home/$USER
+
+useradd -s /bin/bash -m -d $HOME -g root $USER
+mkdir -p -m 700 $HOME/.ssh
+
+if [[ -e "$PUBLIC_KEY" ]]; then
+    log "Reading public key mount"
+    cat $PUBLIC_KEY >> $HOME/.ssh/authorized_keys
 else
-    export HOME=/home/$USER
+    log "Appending raw key"
+    echo $PUBLIC_KEY >> $HOME/.ssh/authorized_keys
+fi
 
-    useradd -s /bin/bash -m -d $HOME -g root $USER
-    mkdir -p -m 700 $HOME/.ssh
+unset PUBLIC_KEY
 
-    if [[ -e "$PUBLIC_KEY" ]]; then
-        log "Reading public key mount"
-        cat $PUBLIC_KEY >> $HOME/.ssh/authorized_keys
-    else
-        log "Appending raw key"
-        echo $PUBLIC_KEY >> $HOME/.ssh/authorized_keys
-    fi
+chmod 600 $HOME/.ssh/authorized_keys
+sed -ri "s@#?AuthorizedKeysFile\s+.*@AuthorizedKeysFile $HOME/.ssh/authorized_keys@" /etc/ssh/sshd_config
+chown -R $USER:root $HOME/.ssh
 
-    unset PUBLIC_KEY
+log "Created user $USER"
 
-    chmod 600 $HOME/.ssh/authorized_keys
-    sed -ri "s@#?AuthorizedKeysFile\s+.*@AuthorizedKeysFile $HOME/.ssh/authorized_keys@" /etc/ssh/sshd_config
-    chown -R $USER:root $HOME/.ssh
+if [ ${IN} ];
+then
+    log "Using existing path"
+    export GIT_DIR=$IN
+else
+    log "Creating empty repository"
+    export GIT_DIR=$HOME/repo.git
+fi
 
-    log "Created user $USER"
+initGit
 
-    if [ ${IN} ];
+if [[ $(cd $GIT_DIR && git rev-parse --is-inside-work-tree) ]]
+then
+    if [[ $(cd $GIT_DIR && git rev-parse --is-bare-repository) ]]
     then
-        log "Using existing path"
-        export GIT_DIR=$IN
-    else
-        log "Creating empty repository"
-        export GIT_DIR=$HOME/repo.git
-    fi
-
-    initGit
-
-    if [[ $(cd $GIT_DIR && git rev-parse --is-inside-work-tree) ]]
-    then
-        if [[ $(cd $GIT_DIR && git rev-parse --is-bare-repository) ]]
-        then
-            touch $GIT_DIR/hooks/post-receive
-            chmod +x $GIT_DIR/hooks/post-receive
+        touch $GIT_DIR/hooks/post-receive
+        chmod +x $GIT_DIR/hooks/post-receive
 (
 cat <<POSTRECEIVE
 #!/bin/bash
@@ -119,13 +115,13 @@ done
 POSTRECEIVE
 ) > $GIT_DIR/hooks/post-receive
 
-        else
-            log "Invalid git bare repo"
-            exit 3
-        fi
+    else
+        log "Invalid git bare repo"
+        exit 3
     fi
-
-    log "Deploy using this git remote url: ssh://$USER@host:port$GIT_DIR"
-
-    tail -f $MEM_LOG & $(which sshd) -D -E $MEM_LOG
 fi
+
+log "Deploy using this git remote url: ssh://$USER@host:port$GIT_DIR"
+
+tail -f $MEM_LOG & $(which sshd) -D -E $MEM_LOG
+
