@@ -106,7 +106,7 @@ do
 
         if [ \${USERSCRIPT} ]
         then
-            \$USERSCRIPT \$branch \$refname
+            \$USERSCRIPT \$branch \$refname \$path
         fi
     else
         echo -e "\e[93m[^] $(date -u +$FORMAT): \e[32mIgnoring push to \$branch as it isnt defined or not a folder\e[0m" >> \$MEM_LOG
