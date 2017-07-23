@@ -4,8 +4,8 @@ initGit() {
     mkdir -p -m 660 $GIT_DIR
     chown -R $USER:root $GIT_DIR
     git init --bare --shared=0660
-    [[ -z $(git config --get receive.denyNonFastForwards) ]] && (git config --add receive.denyNonFastForwards false)
-    [[ -z $(git config --get receive.denyCurrentBranch) ]] && (git config --add receive.denyCurrentBranch ignore)
+    git config receive.denynonfastforwards false
+    git config receive.denycurrentbranch ignore
 }
 
 FORMAT='%Y-%m-%dT%H:%M:%SZ'
