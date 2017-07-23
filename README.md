@@ -34,7 +34,7 @@ $ docker run -d \
 c48f7b86594953012ca4731b1ec08b053ce5826d3f501ed579c660bec42d2c88
 ```
 
-NOTE: You can use `-e PUBLIC_KEY="$(echo ~/.ssh/id_rsa.pub)"` as well and drop the `-v` part of the public key
+NOTE: You can use `-e PUBLIC_KEY="$(cat ~/.ssh/id_rsa.pub)"` as well and drop the `-v` part of the public key
 
 ## Deploy
 
