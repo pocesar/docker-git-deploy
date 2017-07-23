@@ -10,11 +10,14 @@ This Dockerized image doesn't allow plain text logins, can only connect to it th
 ## Defaults
 
 ```
-USER = git # The user used in the git push
-PUBLIC_KEY = "" # Your mounted public key path inside the container
-IN = "" # The folder that holds the git bare repo
-BRANCH_* = "" # The folder that receives the git checkout depending on the name of the variable
+BRANCH_* = "" # [REQUIRED] The folder that receives the git checkout depending on the name of the variable
 # use BRANCH_MASTER="/out" for example, or BRANCH_TESTING="/testout"
+
+PUBLIC_KEY = "" # [REQUIRED] Your mounted public key path inside the container
+
+USER = git # [OPTIONAL] The user used in the git push
+
+IN = "" # [OPTIONAL] The folder that holds the git bare repo
 ```
 
 ## Setup
@@ -35,6 +38,8 @@ c48f7b86594953012ca4731b1ec08b053ce5826d3f501ed579c660bec42d2c88
 ```
 
 NOTE: You can use `-e PUBLIC_KEY="$(cat ~/.ssh/id_rsa.pub)"` as well and drop the `-v` part of the public key
+
+Check the examples folder with a sample `docker-compose.yml` with a Typescript / Node.js project
 
 ## Deploy
 
@@ -77,9 +82,9 @@ Received disconnect from 172.17.42.1: 11: disconnected by user
 
 You can inject your bash scripts into the `post-receive` hook by mounting your script to `-v /var/some/script.sh:/userscript`. It can be anything, like set folder / file permissions, execute `npm install`, `bower install` etc. and any type of language (if you install the needed binaries of course).
 
-You can also use `echo "hello world" >> $MEM_LOG` to output stuff to the docker log from any of your scripts. Be aware that the user script will be called everytime there's a push.
+You can also use `echo "hello world" >> $MEM_LOG` to output stuff to the docker log from any of your scripts. Be aware that the `/userscript` will be called everytime there's a push.
 
-The same goes for the setup script, in `-v /var/some/script.sh:/setup`, it will be called once the container is ran. Useful to install extra software you may need (like `ruby`, `node`, `jekyll`). Please note that those tools are ran inside the container, and you may only output or use the `BRANCH_*` environment variables to execute your commands. Eg.:
+The setup script, placed in `/setup`, set as `-v /var/some/script.sh:/setup`, it will be called one time when the container starts. Useful to install extra software you may need (like `ruby`, `node`, `jekyll`). Only the DOCKER set environment variables are available inside (like `BRANCH_*`, `MEM_LOG`, `IN`, `USER`, `GIT_DIR`, `HOME`). Eg.:
 
 ```bash
 #!/bin/bash
