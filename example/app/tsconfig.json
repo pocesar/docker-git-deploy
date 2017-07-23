@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2017",
+    "allowSyntheticDefaultImports": true,
+    "noEmitOnError": true,
+    "listEmittedFiles": true,
+    "inlineSourceMap": true,
+    "noImplicitAny": true,
+    "strict": true,
+    "alwaysStrict": true,
+    "moduleResolution": "node",
+    "strictNullChecks": true,
+    "lib": [
+      "dom",
+      "esnext.asynciterable",
+      "es2015"
+    ]
+  },
+  "files": [
+    "index.ts",
+  ]
+}
