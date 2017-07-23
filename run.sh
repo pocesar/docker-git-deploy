@@ -4,8 +4,8 @@ initGit() {
     mkdir -p -m 660 $GIT_DIR
     chown -R $USER:root $GIT_DIR
     git init --bare --shared=0660
-    git config --add receive.denyNonFastForwards false
-    git config --add receive.denyCurrentBranch ignore
+    [[ -z $(git config --get receive.denyNonFastForwards) ]] && (git config --add receive.denyNonFastForwards false)
+    [[ -z $(git config --get receive.denyCurrentBranch) ]] && (git config --add receive.denyCurrentBranch ignore)
 }
 
 FORMAT='%Y-%m-%dT%H:%M:%SZ'
@@ -15,7 +15,8 @@ log() {
 }
 
 wideenv() {
-    echo "$1=$2" >> /etc/environment
+    # no duplicated env vars
+    [ $(cat /etc/environment | grep "$1" -c) == "0" ] && ( echo "$1=$2" >> /etc/environment )
 }
 
 MEM_LOG=/dev/shm/$USER
@@ -25,7 +26,7 @@ chmod 0777 $MEM_LOG
 
 branches=$(env | grep BRANCH_)
 
-[[ ! -z $(echo $branches | grep "BRANCH_" -c) ]] || (echo "Must set a BRANCH variable (at least BRANCH_MASTER)" && exit 1)
+[ $(echo $branches | grep "BRANCH_" -c) != "0" ] || ( echo "Must set a BRANCH variable (at least BRANCH_MASTER)" && exit 1 )
 echo "$branches" >> /etc/environment
 log "Using branches: \n\e[36m$(echo "$branches" | sed -e 's/^/\t - \0/g' )\n"
 
@@ -46,11 +47,11 @@ if [[ -e "/userscript" ]]; then
     fi
 fi
 
-wideenv OUT "$OUT"
 wideenv IN "$IN"
 wideenv USERSCRIPT "$USERSCRIPT"
 
 export HOME=/home/$USER
+wideenv HOME "$HOME"
 
 useradd -s /bin/bash -m -d $HOME -g root $USER
 mkdir -p -m 700 $HOME/.ssh
@@ -71,14 +72,15 @@ chown -R $USER:root $HOME/.ssh
 
 log "Created user $USER"
 
-if [ ${IN} ];
-then
+if [ ${IN} ]; then
     log "Using existing path"
     export GIT_DIR=$IN
 else
     log "Creating empty repository"
     export GIT_DIR=$HOME/repo.git
 fi
+
+wideenv GIT_DIR "$GIT_DIR"
 
 initGit
 
