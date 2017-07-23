@@ -1,0 +1,28 @@
+version: '2'
+
+services:
+  node:
+    image: 'node:latest'
+    expose:
+      - '80'
+    ports:
+      - '80:80'
+    volumes:
+      - /var/www:/usr/src/app
+    environment:
+      NODE_ENV: production
+
+  deploy:
+    image: 'pocesar/docker-git-deploy'
+    ports:
+      - '6666:22'
+    volumes:
+      - './authorized_keys:/key.pub:ro'
+      - './app:/app'
+      - './run.sh:/userscript'
+      - './setup.sh:/setup'
+    environment:
+      NODE_ENV: production
+      BRANCH_APP: /app
+      PUBLIC_KEY: /key.pub
+      IN: /in
