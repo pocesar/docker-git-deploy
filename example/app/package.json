@@ -1,3 +1,8 @@
 {
-  "name": "non-empty"
+  "name": "non-empty",
+  "version": "0.0.0",
+  "private": "true",
+  "dependencies": {
+    "moment": "^2.18.1"
+  }
 }
