@@ -1,4 +1,4 @@
-Docker Git Deploy [![Docker repo](http://img.shields.io/badge/docker-repo-blue.svg)](https://registry.hub.docker.com/u/pocesar/docker-git-deploy/)
+Docker Git Deploy [![Docker Automated buil](https://img.shields.io/docker/automated/pocesar/docker-git-deploy.svg)]()
 ================
 
 Dockerized Git deploy through SSH service, built on top of [official Ubuntu](https://registry.hub.docker.com/_/ubuntu/) trusty image. It uses git 'post-receive' hook and provides nice colored logs for each pushed commit.
@@ -92,15 +92,23 @@ echo "something.js downloaded" >> $MEM_LOG # goes to docker logs
 ```
 
 ```bash
-#!/usr/bin/env nodejs
+#!/usr/bin/env node
 
-// this is /userscript
+/** this is /userscript
+ * it receives the following arguments:
+ * $1 = the branch name (as seen in git)
+ * $2 = the refname, like ea9da19
+ * $3 = the current path of the working dir
+ *
+ * all environment variables are available inside, including the IN, BRANCH_* and GIT
+ */
 
 var
     path = require('path'), fs = require('fs');
 
 # process.argv[1] === branch
 # process.argv[2] === gitref
+# process.argv[3] === working tree
 
 if (process.argv[1] === 'master') {
     fs.chmodSync(path.join(process.env.BRANCH_MASTER, 'cache'), '0774');
