@@ -1,4 +1,4 @@
-Docker Git Deploy [![Docker Automated buil](https://img.shields.io/docker/automated/pocesar/docker-git-deploy.svg)]()
+Docker Git Deploy [![Docker Automated buil](https://img.shields.io/docker/automated/pocesar/docker-git-deploy.svg)](https://hub.docker.com/r/pocesar/docker-git-deploy/)
 ================
 
 Dockerized Git deploy through SSH service, built on top of [official Ubuntu](https://registry.hub.docker.com/_/ubuntu/) trusty image. It uses git 'post-receive' hook and provides nice colored logs for each pushed commit.
