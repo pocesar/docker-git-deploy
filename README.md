@@ -82,6 +82,8 @@ Received disconnect from 172.17.42.1: 11: disconnected by user
 
 You can inject your bash scripts into the `post-receive` hook by mounting your script to `-v /var/some/script.sh:/userscript`. It can be anything, like set folder / file permissions, execute `npm install`, `bower install` etc. and any type of language (if you install the needed binaries of course).
 
+If you mount a script to `-v /var/www/somescript.sh:/failscript`, in case your `/userscript` fails, this will be called. this is useful to do some cleanup or revert a commit in case of failure. a simple revert command is `git reset --hard HEAD~1`. `/failscript` receive the same arguments that `/userscript` does
+
 You can also use `echo "hello world" >> $MEM_LOG` to output stuff to the docker log from any of your scripts. Be aware that the `/userscript` will be called everytime there's a push.
 
 The setup script, placed in `/setup`, set as `-v /var/some/script.sh:/setup`, it will be called one time when the container starts. Useful to install extra software you may need (like `ruby`, `node`, `jekyll`). Only the DOCKER set environment variables are available inside (like `BRANCH_*`, `MEM_LOG`, `IN`, `USER`, `GIT_DIR`, `HOME`). Eg.:
