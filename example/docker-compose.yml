@@ -19,6 +19,7 @@ services:
     volumes:
       - './authorized_keys:/key.pub:ro'
       - './app:/app'
+      - './fail.sh:/failscript'
       - './run.sh:/userscript'
       - './setup.sh:/setup'
     environment:
