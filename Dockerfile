@@ -11,8 +11,6 @@ RUN mkdir -m 0755 /var/run/sshd
 ENV PUBLIC_KEY ""
 ENV IN ""
 ENV USER git
-ENV USERSCRIPT ""
-ENV FAILSCRIPT ""
 
 RUN sed -ri 's/#?RSAAuthentication\s+.*/RSAAuthentication yes/' /etc/ssh/sshd_config
 RUN sed -ri 's/#?PermitRootLogin\s+.*/PermitRootLogin no/' /etc/ssh/sshd_config
