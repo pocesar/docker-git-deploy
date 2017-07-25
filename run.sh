@@ -52,7 +52,7 @@ fi
 
 if [[ -e "/failscript" ]]; then
     if [[ ! -d "/failscript" ]]; then
-        FAILSCRIPT="/userscript"
+        FAILSCRIPT="/failscript"
         log "Using $FAILSCRIPT"
         chmod +x /failscript
     else
