@@ -1,5 +1,8 @@
 #!/bin/bash
 
+export USERSCRIPT=""
+export FAILSCRIPT=""
+
 initGit() {
     mkdir -p -m 660 $GIT_DIR
     chown -R $USER:root $GIT_DIR
@@ -39,7 +42,7 @@ fi
 
 if [[ -e "/userscript" ]]; then
     if [[ ! -d "/userscript" ]]; then
-        USERSCRIPT=/userscript
+        USERSCRIPT="/userscript"
         log "Using $USERSCRIPT"
         chmod +x /userscript
     else
@@ -47,8 +50,19 @@ if [[ -e "/userscript" ]]; then
     fi
 fi
 
+if [[ -e "/failscript" ]]; then
+    if [[ ! -d "/failscript" ]]; then
+        FAILSCRIPT="/userscript"
+        log "Using $FAILSCRIPT"
+        chmod +x /failscript
+    else
+        log "Skipping /failscript because its a folder"
+    fi
+fi
+
 wideenv IN "$IN"
 wideenv USERSCRIPT "$USERSCRIPT"
+wideenv FAILSCRIPT "$FAILSCRIPT"
 
 export HOME=/home/$USER
 wideenv HOME "$HOME"
@@ -108,7 +122,7 @@ do
 
         if [ \${USERSCRIPT} ]
         then
-            \$USERSCRIPT \$branch \$refname \$path
+            ( \$USERSCRIPT \$branch \$refname \$path ) || ( [[ ! -z "\$FAILSCRIPT" ]] && echo "\$USERSCRIPT failed, executing \$FAILSCRIPT" && \$FAILSCRIPT \$branch \$refname \$path )
         fi
     else
         echo -e "\e[93m[^] $(date -u +$FORMAT): \e[32mIgnoring push to \$branch as it isnt defined or not a folder\e[0m" >> \$MEM_LOG
