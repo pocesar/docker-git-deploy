@@ -22,6 +22,11 @@ wideenv() {
     [ $(cat /etc/environment | grep "$1" -c) == "0" ] && ( echo "$1=$2" >> /etc/environment )
 }
 
+export HOME=/home/$USER
+wideenv HOME "$HOME"
+
+useradd -s /bin/bash -m -d $HOME -g root -G sudo $USER
+
 MEM_LOG=/dev/shm/$USER
 wideenv MEM_LOG "$MEM_LOG"
 touch $MEM_LOG
@@ -64,10 +69,6 @@ wideenv IN "$IN"
 wideenv USERSCRIPT "$USERSCRIPT"
 wideenv FAILSCRIPT "$FAILSCRIPT"
 
-export HOME=/home/$USER
-wideenv HOME "$HOME"
-
-useradd -s /bin/bash -m -d $HOME -g root -G sudo $USER
 mkdir -p -m 0700 $HOME/.ssh
 
 if [[ -e "$PUBLIC_KEY" ]]; then
