@@ -124,7 +124,7 @@ do
 
         if [ \${USERSCRIPT} ]
         then
-            ( sudo -u $USER -n \$USERSCRIPT \$branch \$refname \$path ) || ( [[ ! -z "\$FAILSCRIPT" ]] && echo "\$USERSCRIPT failed, executing \$FAILSCRIPT" && sudo -u $USER -n \$FAILSCRIPT \$branch \$refname \$path )
+            ( \$USERSCRIPT \$branch \$refname \$path ) || ( [[ ! -z "\$FAILSCRIPT" ]] && echo "\$USERSCRIPT failed, executing \$FAILSCRIPT" && \$FAILSCRIPT \$branch \$refname \$path )
         fi
     else
         echo -e "\e[93m[^] \$(date -u +\$FORMAT): \e[32mIgnoring push to \$branch as it isnt defined or not a folder\e[0m" >> \$MEM_LOG
