@@ -118,7 +118,7 @@ do
 
     if [[ -d \$path ]]
     then
-        ( GIT_WORK_TREE="\$path" sudo -u $USER -n git checkout -f \$branch && \\
+        ( sudo -u $USER -n GIT_WORK_TREE="\$path" git checkout -f \$branch && \\
           echo -e "\e[93m[^] \$(date -u +\$FORMAT): \e[32mUpdated sources on \$loc:\$path\e[0m" >> \$MEM_LOG && \\
           git log -1 --pretty=format:"%h - %an, %ar: %s" | xargs -I {} echo -e "-------------\n\e[35m\$branch\e[0m \e[32m{}\e[0m\n-------------" >> \$MEM_LOG ) || exit 1
 
