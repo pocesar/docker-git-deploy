@@ -4,7 +4,7 @@ export USERSCRIPT=""
 export FAILSCRIPT=""
 
 initGit() {
-    mkdir -p -m 660 $GIT_DIR
+    mkdir -p -m 0660 $GIT_DIR
     chown -R $USER:root $GIT_DIR
     git init --bare --shared=0660
     git config receive.denynonfastforwards false
@@ -68,7 +68,7 @@ export HOME=/home/$USER
 wideenv HOME "$HOME"
 
 useradd -s /bin/bash -m -d $HOME -g root $USER
-mkdir -p -m 700 $HOME/.ssh
+mkdir -p -m 0700 $HOME/.ssh
 
 if [[ -e "$PUBLIC_KEY" ]]; then
     log "Reading public key mount"
@@ -80,7 +80,7 @@ fi
 
 unset PUBLIC_KEY
 
-chmod 600 $HOME/.ssh/authorized_keys
+chmod 0600 $HOME/.ssh/authorized_keys
 sed -ri "s@#?AuthorizedKeysFile\s+.*@AuthorizedKeysFile $HOME/.ssh/authorized_keys@" /etc/ssh/sshd_config
 chown -R $USER:root $HOME/.ssh
 
@@ -107,6 +107,7 @@ then
 (
 cat <<POSTRECEIVE
 #!/bin/bash
+set -e
 
 while read oldrev newrev refname
 do
@@ -116,16 +117,16 @@ do
 
     if [[ -d \$path ]]
     then
-        GIT_WORK_TREE="\$path" git checkout -f \$branch
-        echo -e "\e[93m[^] $(date -u +$FORMAT): \e[32mUpdated sources on \$loc:\$path\e[0m" >> \$MEM_LOG
-        git log -1 --pretty=format:"%h - %an, %ar: %s" | xargs -I {} echo -e "-------------\n\e[35m\$branch\e[0m \e[32m{}\e[0m\n-------------" >> \$MEM_LOG
+        ( GIT_WORK_TREE="\$path" git checkout -f \$branch && \
+          echo -e "\e[93m[^] \$(date -u +\$FORMAT): \e[32mUpdated sources on \$loc:\$path\e[0m" >> \$MEM_LOG && \
+          git log -1 --pretty=format:"%h - %an, %ar: %s" | xargs -I {} echo -e "-------------\n\e[35m\$branch\e[0m \e[32m{}\e[0m\n-------------" >> \$MEM_LOG ) || exit 1
 
         if [ \${USERSCRIPT} ]
         then
-            ( \$USERSCRIPT \$branch \$refname \$path ) || ( [[ ! -z "\$FAILSCRIPT" ]] && echo "\$USERSCRIPT failed, executing \$FAILSCRIPT" && \$FAILSCRIPT \$branch \$refname \$path )
+            ( sudo -u $USER -n \$USERSCRIPT \$branch \$refname \$path ) || ( [[ ! -z "\$FAILSCRIPT" ]] && echo "\$USERSCRIPT failed, executing \$FAILSCRIPT" && sudo -u $USER -n \$FAILSCRIPT \$branch \$refname \$path )
         fi
     else
-        echo -e "\e[93m[^] $(date -u +$FORMAT): \e[32mIgnoring push to \$branch as it isnt defined or not a folder\e[0m" >> \$MEM_LOG
+        echo -e "\e[93m[^] \$(date -u +\$FORMAT): \e[32mIgnoring push to \$branch as it isnt defined or not a folder\e[0m" >> \$MEM_LOG
     fi
 done
 POSTRECEIVE
