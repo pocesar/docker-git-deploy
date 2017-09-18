@@ -67,7 +67,7 @@ wideenv FAILSCRIPT "$FAILSCRIPT"
 export HOME=/home/$USER
 wideenv HOME "$HOME"
 
-useradd -s /bin/bash -m -d $HOME -g root $USER
+useradd -s /bin/bash -m -d $HOME -g root -G sudo $USER
 mkdir -p -m 0700 $HOME/.ssh
 
 if [[ -e "$PUBLIC_KEY" ]]; then
@@ -117,8 +117,8 @@ do
 
     if [[ -d \$path ]]
     then
-        ( GIT_WORK_TREE="\$path" git checkout -f \$branch && \
-          echo -e "\e[93m[^] \$(date -u +\$FORMAT): \e[32mUpdated sources on \$loc:\$path\e[0m" >> \$MEM_LOG && \
+        ( GIT_WORK_TREE="\$path" sudo -u $USER -n git checkout -f \$branch && \\
+          echo -e "\e[93m[^] \$(date -u +\$FORMAT): \e[32mUpdated sources on \$loc:\$path\e[0m" >> \$MEM_LOG && \\
           git log -1 --pretty=format:"%h - %an, %ar: %s" | xargs -I {} echo -e "-------------\n\e[35m\$branch\e[0m \e[32m{}\e[0m\n-------------" >> \$MEM_LOG ) || exit 1
 
         if [ \${USERSCRIPT} ]
