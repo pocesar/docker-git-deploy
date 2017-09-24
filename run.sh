@@ -14,7 +14,7 @@ initGit() {
 FORMAT='%Y-%m-%dT%H:%M:%SZ'
 
 log() {
-    echo -e "\e[93m[+] $(date -u +$FORMAT): \e[32m$1\e[0m"
+    echo -e "[+] $(date -u +$FORMAT): $1"
 }
 
 wideenv() {
@@ -36,7 +36,7 @@ branches=$(env | grep BRANCH_)
 
 [ $(echo $branches | grep "BRANCH_" -c) != "0" ] || ( echo "Must set a BRANCH variable (at least BRANCH_MASTER)" && exit 1 )
 echo "$branches" >> /etc/environment
-log "Using branches: \n\e[36m$(echo "$branches" | sed -e 's/^/\t - \0/g' )\n"
+log "Using branches: \n$(echo "$branches" | sed -e 's/^/\t - \0/g' )\n"
 
 if [[ -e "/setup" ]]; then
     chmod +x /setup
@@ -118,21 +118,22 @@ do
 
     if [[ -d \$path ]]
     then
-        ( sudo -u $USER -n GIT_WORK_TREE="\$path" git checkout -f \$branch && \\
-          echo -e "\e[93m[^] \$(date -u +\$FORMAT): \e[32mUpdated sources on \$loc:\$path\e[0m" >> \$MEM_LOG && \\
-          git log -1 --pretty=format:"%h - %an, %ar: %s" | xargs -I {} echo -e "-------------\n\e[35m\$branch\e[0m \e[32m{}\e[0m\n-------------" >> \$MEM_LOG ) || exit 1
+        ( git --work-tree="\$path" --git-dir="$GIT_DIR" checkout -f \$branch && \\
+          echo -e "\$(date -u +$FORMAT): Checkout new sources on \$loc:\$path" >> \$MEM_LOG && \\
+          git log -1 --pretty=format:"%h - %an, %ar: %s" | xargs -I {} echo -e "-------------\n\$branch {} \n-------------" >> \$MEM_LOG ) || exit 1
 
         if [ \${USERSCRIPT} ]
         then
             ( \$USERSCRIPT \$branch \$refname \$path ) || ( [[ ! -z "\$FAILSCRIPT" ]] && echo "\$USERSCRIPT failed, executing \$FAILSCRIPT" && \$FAILSCRIPT \$branch \$refname \$path )
         fi
     else
-        echo -e "\e[93m[^] \$(date -u +\$FORMAT): \e[32mIgnoring push to \$branch as it isnt defined or not a folder\e[0m" >> \$MEM_LOG
+        echo -e "[^] \$(date -u +$FORMAT): Ignoring push to \$branch as it isnt defined or not a folder" >> \$MEM_LOG
     fi
 done
 POSTRECEIVE
 ) > $GIT_DIR/hooks/post-receive
 
+    chown $USER:root $GIT_DIR/hooks/post-receive
     else
         log "Invalid git bare repo"
         exit 3
