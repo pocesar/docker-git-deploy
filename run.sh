@@ -7,8 +7,9 @@ initGit() {
     mkdir -p -m 0660 $GIT_DIR
     chown -R $USER:root $GIT_DIR
     git init --bare --shared=0660
-    git config receive.denynonfastforwards false
-    git config receive.denycurrentbranch ignore
+    git config receive.denyNonFastForwards false
+    git config receive.denyCurrentBranch ignore
+    git config receive.denyDeleteCurrent ignore
 }
 
 FORMAT='%Y-%m-%dT%H:%M:%SZ'
